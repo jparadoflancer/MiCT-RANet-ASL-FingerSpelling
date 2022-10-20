@@ -99,7 +99,7 @@ class VideoProcessingPipeline(object):
         self.p_prior.start()
 
         # initialise camera
-        self.cap = cv.VideoCapture(0)
+        self.cap = cv.VideoCapture(-1)
         if self.cap.isOpened():
             self.cap_fps = int(round(self.cap.get(cv.CAP_PROP_FPS)))
             self.cap.set(3, self.cam_res[0])
@@ -576,7 +576,7 @@ def main():
 
     def greedy_decode(probs, sentence, last_letter):
         letter = inv_vocab_map[np.argmax(probs)]
-        if (letter is not '_') & (last_letter != letter):
+        if (letter != '_') & (last_letter != letter):
             sentence += letter.upper()
             return letter, sentence, True
         else:
@@ -584,7 +584,7 @@ def main():
 
     # init CUDA and display the first frame
     prob, h = predict_proba(h, dequeue=False)
-    torch.cuda.synchronize()
+    # torch.cuda.synchronize()
     _ = vpp.last_frame.popleft()  # pop first image
     last_cropped_frame = vpp.last_cropped_frame.popleft()
     pw.draw_canvas(last_cropped_frame, np.zeros(28), pred=None,
