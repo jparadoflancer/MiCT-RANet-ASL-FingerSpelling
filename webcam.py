@@ -100,6 +100,7 @@ class VideoProcessingPipeline(object):
 
         # initialise camera
         self.cap = cv.VideoCapture("https://www.syd1.fln-dev.net/fileservice/v4/download/621b0f33-a2b6-49f0-9be8-3f0fc01f733a?signature=WlmJPzyoYmAr3zryD07Rxng1NOlXZYaVfpNlnNQYZ1w=&issued=1666282866&expires=1666369266&disposition=attachment&signature_version=2")
+        # self.cap = cv.VideoCapture("./assets/alphabet.mp4")
         if self.cap.isOpened():
             self.cap_fps = int(round(self.cap.get(cv.CAP_PROP_FPS)))
             self.cap.set(3, self.cam_res[0])
@@ -601,83 +602,89 @@ def main():
     outdir = None
     n_frames = 0
 
-    while True:
-        frame = vpp.acquire_next_frame()
+    try:
+        while True:
+            frame = vpp.acquire_next_frame()
 
-        while (not vpp.q_parent.empty()) & (len(vpp.img_frames) >= frames_window):
-            probs, h = predict_proba(h, dequeue=True)
-            last_letter, sentence, new_letter_found = greedy_decode(probs, sentence, last_letter)
-            # print("Last Letter %s" % last_letter)
-            # print("Sentence %s" % sentence)
-            # print("New Letter Found %s" % new_letter_found)
-            _ = vpp.last_frame.popleft()
-            last_cropped_frame = vpp.last_cropped_frame.popleft()
-            # pw.draw_canvas(last_cropped_frame, probs, sentence, n_lines,
-            #                is_recording, 1 / np.mean(run_times))
-            if is_recording:
-                n_frames += 1
-                # pw.save_frame(outdir, n_frames)
+            while (not vpp.q_parent.empty()) & (len(vpp.img_frames) >= frames_window):
+                probs, h = predict_proba(h, dequeue=True)
+                last_letter, sentence, new_letter_found = greedy_decode(probs, sentence, last_letter)
+                # print("Last Letter %s" % last_letter)
+                print("Sentence %s" % sentence)
+                # print("New Letter Found %s" % new_letter_found)
+                _ = vpp.last_frame.popleft()
+                last_cropped_frame = vpp.last_cropped_frame.popleft()
+                # pw.draw_canvas(last_cropped_frame, probs, sentence, n_lines,
+                #                is_recording, 1 / np.mean(run_times))
+                if is_recording:
+                    n_frames += 1
+                    # pw.save_frame(outdir, n_frames)
 
-        key = cv.waitKey(1)
+            key = cv.waitKey(1)
 
-        # enable/disable recording
-        if key == ord('r'):
-            is_recording = not is_recording
-            if is_recording:
-                outdir = os.path.join('data', 'recordings',
-                                      str(datetime.now()).split('.')[0].replace(' ', '@'))
-                os.makedirs(os.path.join(outdir, 'plot'))
-                os.makedirs(os.path.join(outdir, 'raw'))
+            # enable/disable recording
+            if key == ord('r'):
+                is_recording = not is_recording
+                if is_recording:
+                    outdir = os.path.join('data', 'recordings',
+                                          str(datetime.now()).split('.')[0].replace(' ', '@'))
+                    os.makedirs(os.path.join(outdir, 'plot'))
+                    os.makedirs(os.path.join(outdir, 'raw'))
+                    h = h0
+                    last_letter = '_'
+                    sentence = ''
+                    n_lines = 0
+                if not is_recording:
+                    n_frames = 0  # reset counter for next recording
+            # enforce space character insertion (cheating !)
+            elif key == SPACE_KEY:
+                h = h0
+                last_letter = '_'
+                sentence += ' '
+            # new line
+            elif key == ENTER_KEY:
+                h = h0
+                last_letter = '_'
+                sentence += '\n'
+                if n_lines == 2:
+                    sentence = '\n'.join(sentence.split('\n')[1:])
+                else:
+                    n_lines += 1
+            # clear signed sequence
+            elif key == BACKSPACE_KEY:
+                if len(sentence) > 0:
+                    h = h0
+                    last_letter = '_'
+                    end_letter = sentence[-1]
+                    sentence = sentence[:-1]
+                    if end_letter == '\n':
+                        n_lines -= 1
+            # remove last sign (cheating !)
+            elif key == DELETE_KEY:
                 h = h0
                 last_letter = '_'
                 sentence = ''
                 n_lines = 0
-            if not is_recording:
-                n_frames = 0  # reset counter for next recording
-        # enforce space character insertion (cheating !)
-        elif key == SPACE_KEY:
-            h = h0
-            last_letter = '_'
-            sentence += ' '
-        # new line
-        elif key == ENTER_KEY:
-            h = h0
-            last_letter = '_'
-            sentence += '\n'
-            if n_lines == 2:
-                sentence = '\n'.join(sentence.split('\n')[1:])
-            else:
-                n_lines += 1
-        # clear signed sequence
-        elif key == BACKSPACE_KEY:
-            if len(sentence) > 0:
-                h = h0
-                last_letter = '_'
-                end_letter = sentence[-1]
-                sentence = sentence[:-1]
-                if end_letter == '\n':
-                    n_lines -= 1
-        # remove last sign (cheating !)
-        elif key == DELETE_KEY:
-            h = h0
-            last_letter = '_'
-            sentence = ''
-            n_lines = 0
-        # quit/exit application
-        elif (key == ESCAPE_KEY) | (key == ord('q')) | (key == ord('x')):
-            break
+            # quit/exit application
+            elif (key == ESCAPE_KEY) | (key == ord('q')) | (key == ord('x')):
+                break
 
-        if frame is not None:
-            frame_end = time.perf_counter()
-            run_times.append(frame_end - frame_start)
-            frame_start = frame_end
-
-    # release resources and exit
-    vpp.terminate()
-    cv.destroyAllWindows()
+            if frame is not None:
+                frame_end = time.perf_counter()
+                run_times.append(frame_end - frame_start)
+                frame_start = frame_end
+    except:
+        print("hehe catch lang")
+    finally:
+        # release resources and exit
+        # vpp.terminate()
+        cv.destroyAllWindows()
+        return sentence
 
 
 if __name__ == '__main__':
     torch.multiprocessing.set_start_method('spawn')
     rcParams['font.family'] = 'monospace'
-    main()
+    sentence = main()
+    print("Panisss")
+    print("Sentence %s" % sentence)
