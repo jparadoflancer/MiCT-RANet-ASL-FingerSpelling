@@ -99,7 +99,7 @@ class VideoProcessingPipeline(object):
         self.p_prior.start()
 
         # initialise camera
-        self.cap = cv.VideoCapture(-1)
+        self.cap = cv.VideoCapture("https://www.syd1.fln-dev.net/fileservice/v4/download/621b0f33-a2b6-49f0-9be8-3f0fc01f733a?signature=WlmJPzyoYmAr3zryD07Rxng1NOlXZYaVfpNlnNQYZ1w=&issued=1666282866&expires=1666369266&disposition=attachment&signature_version=2")
         if self.cap.isOpened():
             self.cap_fps = int(round(self.cap.get(cv.CAP_PROP_FPS)))
             self.cap.set(3, self.cam_res[0])
@@ -561,7 +561,7 @@ def main():
                                   skip_frames=args.skip_frames,
                                   denoising=bool(args.denoising))
 
-    pw = PlayerWindow(vpp, inv_vocab_map, char_list)
+    # pw = PlayerWindow(vpp, inv_vocab_map, char_list)
 
     def predict_proba(h, dequeue):
         imgs, prior = vpp.get_model_input(dequeue=dequeue)
@@ -587,8 +587,8 @@ def main():
     # torch.cuda.synchronize()
     _ = vpp.last_frame.popleft()  # pop first image
     last_cropped_frame = vpp.last_cropped_frame.popleft()
-    pw.draw_canvas(last_cropped_frame, np.zeros(28), pred=None,
-                   n_lines=1, is_recording=False, fps=None)
+    # pw.draw_canvas(last_cropped_frame, np.zeros(28), pred=None,
+    #                n_lines=1, is_recording=False, fps=None)
 
     # keep a few seconds of run times
     run_times = collections.deque([(vpp.cap_fps * args.skip_frames) / 1000] * 3,
@@ -607,13 +607,16 @@ def main():
         while (not vpp.q_parent.empty()) & (len(vpp.img_frames) >= frames_window):
             probs, h = predict_proba(h, dequeue=True)
             last_letter, sentence, new_letter_found = greedy_decode(probs, sentence, last_letter)
+            # print("Last Letter %s" % last_letter)
+            # print("Sentence %s" % sentence)
+            # print("New Letter Found %s" % new_letter_found)
             _ = vpp.last_frame.popleft()
             last_cropped_frame = vpp.last_cropped_frame.popleft()
-            pw.draw_canvas(last_cropped_frame, probs, sentence, n_lines,
-                           is_recording, 1 / np.mean(run_times))
+            # pw.draw_canvas(last_cropped_frame, probs, sentence, n_lines,
+            #                is_recording, 1 / np.mean(run_times))
             if is_recording:
                 n_frames += 1
-                pw.save_frame(outdir, n_frames)
+                # pw.save_frame(outdir, n_frames)
 
         key = cv.waitKey(1)
 
