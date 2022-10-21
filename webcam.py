@@ -110,7 +110,7 @@ class VideoProcessingPipeline(object):
             self.cap.set(4, self.cam_res[1])
             print('Device @%d FPS' % self.cap_fps)
         else:
-            raise IOError('Failed to open webcam capture')
+            raise IOError('Failed to open video file :c')
 
         # raw images
         self.last_frame = collections.deque(maxlen=self.cap_fps)
@@ -680,8 +680,8 @@ def main(video_link: str):
                 frame_end = time.perf_counter()
                 run_times.append(frame_end - frame_start)
                 frame_start = frame_end
-    except:
-        print("placeholder catch. Video has ended")
+    except Exception as e:
+        print(f"Try-all catch. Video could have ended. If not: {str(e)}")
     finally:
         # release resources and exit
         # vpp.terminate()
@@ -704,10 +704,10 @@ def process_video_route():
     if request.method == 'POST':
         request_data = request.get_json(force=True)
 
-        video_link = request_data['video_link']
+        if not ('video_link' in request_data and request_data['video_link']):
+            return {'status': 'error', 'message': "'video_link' is empty or is not found in the payload"}
 
-        if not (video_link):
-            return ({'status': 'error', 'message': "'video_link' not found in the payload"})
+        video_link = request_data['video_link']
 
         torch.multiprocessing.set_start_method('fork')
         rcParams['font.family'] = 'monospace'
