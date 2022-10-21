@@ -712,7 +712,11 @@ def process_video_route():
         auth_hash = request_data['auth_hash']
         file_id = request_data['file_id']
 
-        video_as_bytes = fileservice_py.client.download(
+        fileservice_client = fileservice_py.client.FileserviceClient(
+            'fileservice_socket_encrypted.service.consul', 10501
+        )
+
+        video_as_bytes = fileservice_client.download(
             file_id,
             auth_hash
         )
