@@ -709,32 +709,48 @@ app = Flask(__name__)
 def process_video_route():
     if request.method == 'POST':
         request_data = request.get_json(force=True)
+        auth_hash = request_data['auth_hash']
+        file_id = request_data['file_id']
 
-        if not ('video_link' in request_data and request_data['video_link']):
-            return {'status': 'error', 'message': "'video_link' is empty or is not found in the payload"}
+        video_as_bytes = fileservice_py.client.download(
+            file_id,
+            auth_hash
+        )
 
-        video_link = request_data['video_link']
+        print(video_as_bytes)
 
-        torch.multiprocessing.set_start_method('fork')
-        rcParams['font.family'] = 'monospace'
-        generated_sentence = main(video_link)
+        return {
+            'sentence': 'placeholder'
+        }
 
-        return {'sentence': generated_sentence}
-
-    return {'value': 'EMPTY.'}
+    # if request.method == 'POST':
+    #     request_data = request.get_json(force=True)
+    #
+    #     if not ('video_link' in request_data and request_data['video_link']):
+    #         return {'status': 'error', 'message': "'video_link' is empty or is not found in the payload"}
+    #
+    #     video_link = request_data['video_link']
+    #
+    #     torch.multiprocessing.set_start_method('fork')
+    #     rcParams['font.family'] = 'monospace'
+    #     generated_sentence = main(video_link)
+    #
+    #     return {'sentence': generated_sentence}
+    #
+    # return {'value': 'EMPTY.'}
 
     # return {'result': 'placeholder'}
 
 
 if __name__ == '__main__':
-    fileservice_client = fileservice_py.client.FileserviceClient(
-        'fileservice_socket_encrypted.service.consul', 10501
-    )
+    # fileservice_client = fileservice_py.client.FileserviceClient(
+    #     'fileservice_socket_encrypted.service.consul', 10501
+    # )
+    #
+    # source_video_bytes = fileservice_client.download(
+    #     '593750d7-d300-4aa9-b604-1f1a57f6ec2f',
+    #     '48613253;xk6sURHw2cyLU/pgoVQfkFXPqFW3dv1fLsAraO1jQYE='
+    # )
+    # print(source_video_bytes)
 
-    source_video_bytes = fileservice_client.download(
-        '593750d7-d300-4aa9-b604-1f1a57f6ec2f',
-        '48613253;xk6sURHw2cyLU/pgoVQfkFXPqFW3dv1fLsAraO1jQYE='
-    )
-    print(source_video_bytes)
-
-    # app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0')
