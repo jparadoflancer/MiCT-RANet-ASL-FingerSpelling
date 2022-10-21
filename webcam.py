@@ -712,6 +712,9 @@ def process_video_route():
         auth_hash = request_data['auth_hash']
         file_id = request_data['file_id']
 
+        print(f'Auth Hash: {auth_hash}')
+        print(f'File ID: {file_id}')
+
         fileservice_client = fileservice_py.client.FileserviceClient(
             'fileservice_socket_encrypted.service.consul', 10501
         )
