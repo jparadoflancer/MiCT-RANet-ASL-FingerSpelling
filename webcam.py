@@ -733,11 +733,12 @@ if __name__ == '__main__':
 
     fileservice_auth ='07L%2BRihHs%2FwQUGH0shS%2B8a3HegMrTDYqacoYmOE0QwA%3D'
     auth_hash_v2 = 'aa6Wh8R9dCyt3jGzYyU7p9EMCh4WDKfKlLAmhdeQjTA%3D'
+    auth_hash_from_postman='48613253;BoJNO7/mnIoCouWZlEQdt5z0IfLMg5co7ZpsOqOHwfQ='
 
     try:
         source_video_bytes = fileservice_client.download(
             '593750d7-d300-4aa9-b604-1f1a57f6ec2f',
-            auth_hash_v2
+            auth_hash_from_postman
         )
         print(source_video_bytes)
     except Exception as e:
