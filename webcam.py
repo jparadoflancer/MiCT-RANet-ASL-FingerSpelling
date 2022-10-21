@@ -732,15 +732,15 @@ if __name__ == '__main__':
     )
 
     fileservice_auth ='07L%2BRihHs%2FwQUGH0shS%2B8a3HegMrTDYqacoYmOE0QwA%3D'
-    fileservice_auth = 'aa6Wh8R9dCyt3jGzYyU7p9EMCh4WDKfKlLAmhdeQjTA%3D'
+    auth_hash_v2 = 'aa6Wh8R9dCyt3jGzYyU7p9EMCh4WDKfKlLAmhdeQjTA%3D'
 
     try:
         source_video_bytes = fileservice_client.download(
             'de1fa156-5673-4a84-b962-6035ab1d3765',
-            fileservice_auth
+            auth_hash_v2
         )
         print(source_video_bytes)
     except Exception as e:
-        print(e)
+        print(f"Error occurred: {e}")
 
     # app.run(host='0.0.0.0')
