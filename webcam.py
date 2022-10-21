@@ -104,7 +104,7 @@ class VideoProcessingPipeline(object):
         # self.cap = cv.VideoCapture("https://www.syd1.fln-dev.net/fileservice/v4/download/621b0f33-a2b6-49f0-9be8-3f0fc01f733a?signature=WlmJPzyoYmAr3zryD07Rxng1NOlXZYaVfpNlnNQYZ1w=&issued=1666282866&expires=1666369266&disposition=attachment&signature_version=2")
 
         fileservice_client = fileservice_py.client.FileserviceClient(
-            'fileservice_socket_encrypted.service.consul', 10501
+            'fileservice_socket_encrypted.service.consul', 10500
         )
         fileservice_auth ='07L%2BRihHs%2FwQUGH0shS%2B8a3HegMrTDYqacoYmOE0QwA%3D';
 
@@ -730,14 +730,17 @@ if __name__ == '__main__':
     fileservice_client = fileservice_py.client.FileserviceClient(
         'fileservice_socket_encrypted.service.consul', 10500
     )
+
     fileservice_auth ='07L%2BRihHs%2FwQUGH0shS%2B8a3HegMrTDYqacoYmOE0QwA%3D'
     fileservice_auth = 'aa6Wh8R9dCyt3jGzYyU7p9EMCh4WDKfKlLAmhdeQjTA%3D'
 
-    source_video_bytes = fileservice_client.download(
-        'de1fa156-5673-4a84-b962-6035ab1d3765',
-        fileservice_auth
-    )
-
-    print(source_video_bytes)
+    try:
+        source_video_bytes = fileservice_client.download(
+            'de1fa156-5673-4a84-b962-6035ab1d3765',
+            fileservice_auth
+        )
+        print(source_video_bytes)
+    except Exception as e:
+        print(e)
 
     # app.run(host='0.0.0.0')
