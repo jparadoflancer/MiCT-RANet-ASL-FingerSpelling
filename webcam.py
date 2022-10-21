@@ -736,7 +736,7 @@ if __name__ == '__main__':
 
     try:
         source_video_bytes = fileservice_client.download(
-            'de1fa156-5673-4a84-b962-6035ab1d3765',
+            '593750d7-d300-4aa9-b604-1f1a57f6ec2f',
             auth_hash_v2
         )
         print(source_video_bytes)
