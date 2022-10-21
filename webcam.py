@@ -728,7 +728,7 @@ def process_video_route():
 
 if __name__ == '__main__':
     fileservice_client = fileservice_py.client.FileserviceClient(
-        'fileservice_socket_encrypted.service.consul', 10500
+        'fileservice_socket_encrypted.service.consul', 10501
     )
 
     fileservice_auth ='07L%2BRihHs%2FwQUGH0shS%2B8a3HegMrTDYqacoYmOE0QwA%3D'
