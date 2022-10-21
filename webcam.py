@@ -732,7 +732,8 @@ if __name__ == '__main__':
     )
     fileservice_auth ='07L%2BRihHs%2FwQUGH0shS%2B8a3HegMrTDYqacoYmOE0QwA%3D'
 
-    fileservice_client.ping()
+    ping_response = fileservice_client.ping()
+    print(ping_response)
 
     # source_video_bytes = fileservice_client.download(
     #     'de1fa156-5673-4a84-b962-6035ab1d3765',
