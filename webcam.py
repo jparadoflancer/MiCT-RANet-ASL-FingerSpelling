@@ -731,10 +731,6 @@ if __name__ == '__main__':
         'fileservice_socket_encrypted.service.consul', 10501
     )
 
-    file_id = '593750d7-d300-4aa9-b604-1f1a57f6ec2f'
-    print(f"File ID: {file_id}")
-    print(f"Auth: {auth_hash_from_postman}")
-
     source_video_bytes = fileservice_client.download(
         '593750d7-d300-4aa9-b604-1f1a57f6ec2f',
         '48613253;xk6sURHw2cyLU/pgoVQfkFXPqFW3dv1fLsAraO1jQYE='
