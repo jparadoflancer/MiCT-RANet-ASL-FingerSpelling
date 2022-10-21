@@ -735,13 +735,13 @@ if __name__ == '__main__':
     auth_hash_v2 = 'aa6Wh8R9dCyt3jGzYyU7p9EMCh4WDKfKlLAmhdeQjTA%3D'
     auth_hash_from_postman='48613253;BoJNO7/mnIoCouWZlEQdt5z0IfLMg5co7ZpsOqOHwfQ='
 
-    try:
+        file_id = '593750d7-d300-4aa9-b604-1f1a57f6ec2f'
+        print(f"File ID: {file_id}")
+        print(f"Auth: {auth_hash_from_postman}")
         source_video_bytes = fileservice_client.download(
             '593750d7-d300-4aa9-b604-1f1a57f6ec2f',
             auth_hash_from_postman
         )
         print(source_video_bytes)
-    except Exception as e:
-        print(f"Error occurred: {e}")
 
     # app.run(host='0.0.0.0')
