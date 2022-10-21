@@ -1,18 +1,18 @@
-from flask import Flask, request, jsonify
+import argparse
+import collections
+import configparser
+import os
 import time
 from datetime import datetime
-import os
-import argparse
-import configparser
-import collections
-import numpy as np
-from matplotlib import rcParams
-import matplotlib.colors as mcolors
-from matplotlib import pyplot as plt
-from PIL import Image
-import cv2 as cv
 
+import cv2 as cv
+import matplotlib.colors as mcolors
+import numpy as np
 import torch
+from PIL import Image
+from flask import Flask, request
+from matplotlib import pyplot as plt
+from matplotlib import rcParams
 from torch.multiprocessing import Process, Queue
 from torchvision import transforms
 
@@ -20,7 +20,6 @@ from chicago_fs_wild import (PriorToMap, ToTensor,
                              Normalize, Batchify)
 from mictranet import *
 from utils import get_ctc_vocab
-
 
 ESCAPE_KEY = 27
 SPACE_KEY = 32
@@ -38,6 +37,7 @@ class VideoProcessingPipeline(object):
     on CPU, and queues back the moving average to the main process. This moving
     average is used as attention prior by the model.
     """
+
     def __init__(self, img_size, img_cfg, frames_window=13, flows_window=5,
                  skip_frames=2, cam_res=(640, 480), denoising=True, video_link=''):
         """
@@ -347,6 +347,7 @@ class PlayerWindow(object):
     """
     Display window of the webcam stream with probabilities and sentence prediction.
     """
+
     def __init__(self, vpp, inv_vocab_map, char_list):
         """
         :param vpp: an instance of VideoProcessingPipeline.
@@ -512,7 +513,8 @@ def main(video_link: str):
     parser = argparse.ArgumentParser(description='Fingerspelling Practice')
     parser.add_argument('--conf', type=str, default='conf.ini', help='configuration file')
     parser.add_argument('--gpu_id', type=str, default='0', help='CUDA enabled GPU device (default: 0)')
-    parser.add_argument('--frames_window', type=int, default=13, help='images window size used for each prediction step')
+    parser.add_argument('--frames_window', type=int, default=13,
+                        help='images window size used for each prediction step')
     parser.add_argument('--flows_window', type=int, default=5,
                         help='optical flow window size used to calculate attention prior')
     parser.add_argument('--skip_frames', type=int, default=2, help='video frames downsampling ratio')
@@ -696,12 +698,16 @@ def main(video_link: str):
 
 app = Flask(__name__)
 
+
 @app.route('/video', methods=["POST"])
 def process_video_route():
     if request.method == 'POST':
         request_data = request.get_json(force=True)
 
         video_link = request_data['video_link']
+
+        if not (video_link):
+            return ({'status': 'error', 'message': "'video_link' not found in the payload"})
 
         torch.multiprocessing.set_start_method('fork')
         rcParams['font.family'] = 'monospace'
@@ -712,6 +718,7 @@ def process_video_route():
     return {'value': 'EMPTY.'}
 
     # return {'result': 'placeholder'}
+
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0')
