@@ -1,3 +1,4 @@
+from flask import Flask, request, jsonify
 import time
 from datetime import datetime
 import os
@@ -38,7 +39,7 @@ class VideoProcessingPipeline(object):
     average is used as attention prior by the model.
     """
     def __init__(self, img_size, img_cfg, frames_window=13, flows_window=5,
-                 skip_frames=2, cam_res=(640, 480), denoising=True):
+                 skip_frames=2, cam_res=(640, 480), denoising=True, video_link=''):
         """
         :param img_size: the images input size of the neural network.
         :param img_cfg: the config parameters for image processing.
@@ -99,7 +100,9 @@ class VideoProcessingPipeline(object):
         self.p_prior.start()
 
         # initialise camera
-        self.cap = cv.VideoCapture("https://www.syd1.fln-dev.net/fileservice/v4/download/621b0f33-a2b6-49f0-9be8-3f0fc01f733a?signature=WlmJPzyoYmAr3zryD07Rxng1NOlXZYaVfpNlnNQYZ1w=&issued=1666282866&expires=1666369266&disposition=attachment&signature_version=2")
+        # self.cap = cv.VideoCapture("https://www.syd1.fln-dev.net/fileservice/v4/download/621b0f33-a2b6-49f0-9be8-3f0fc01f733a?signature=WlmJPzyoYmAr3zryD07Rxng1NOlXZYaVfpNlnNQYZ1w=&issued=1666282866&expires=1666369266&disposition=attachment&signature_version=2")
+        print(video_link)
+        self.cap = cv.VideoCapture(video_link)
         # self.cap = cv.VideoCapture("./assets/alphabet.mp4")
         if self.cap.isOpened():
             self.cap_fps = int(round(self.cap.get(cv.CAP_PROP_FPS)))
@@ -505,7 +508,7 @@ class PlayerWindow(object):
         cv.imwrite(os.path.join(outdir, 'raw', '{:>04d}.png'.format(n_frames)), self.last_frame)
 
 
-def main():
+def main(video_link: str):
     parser = argparse.ArgumentParser(description='Fingerspelling Practice')
     parser.add_argument('--conf', type=str, default='conf.ini', help='configuration file')
     parser.add_argument('--gpu_id', type=str, default='0', help='CUDA enabled GPU device (default: 0)')
@@ -560,7 +563,9 @@ def main():
                                   frames_window=args.frames_window,
                                   flows_window=args.flows_window,
                                   skip_frames=args.skip_frames,
-                                  denoising=bool(args.denoising))
+                                  denoising=bool(args.denoising),
+                                  video_link=video_link
+                                  )
 
     # pw = PlayerWindow(vpp, inv_vocab_map, char_list)
 
@@ -674,7 +679,7 @@ def main():
                 run_times.append(frame_end - frame_start)
                 frame_start = frame_end
     except:
-        print("hehe catch lang")
+        print("placeholder catch. Video has ended")
     finally:
         # release resources and exit
         # vpp.terminate()
@@ -682,9 +687,31 @@ def main():
         return sentence
 
 
+# if __name__ == '__main__':
+#     torch.multiprocessing.set_start_method('spawn')
+#     rcParams['font.family'] = 'monospace'
+#     sentence = main('') # insert video link here
+#     print("Panisss")
+#     print("Sentence %s" % sentence)
+
+app = Flask(__name__)
+
+@app.route('/video', methods=["POST"])
+def process_video_route():
+    if request.method == 'POST':
+        request_data = request.get_json(force=True)
+
+        video_link = request_data['video_link']
+
+        torch.multiprocessing.set_start_method('fork')
+        rcParams['font.family'] = 'monospace'
+        generated_sentence = main(video_link)
+
+        return {'sentence': generated_sentence}
+
+    return {'value': 'EMPTY.'}
+
+    # return {'result': 'placeholder'}
+
 if __name__ == '__main__':
-    torch.multiprocessing.set_start_method('spawn')
-    rcParams['font.family'] = 'monospace'
-    sentence = main()
-    print("Panisss")
-    print("Sentence %s" % sentence)
+    app.run(host='0.0.0.0')
