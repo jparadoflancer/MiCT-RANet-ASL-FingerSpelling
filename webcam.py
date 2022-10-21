@@ -6,6 +6,7 @@ import time
 from datetime import datetime
 
 import cv2 as cv
+import fileservice_py.client
 import matplotlib.colors as mcolors
 import numpy as np
 import torch
@@ -101,7 +102,12 @@ class VideoProcessingPipeline(object):
 
         # initialise camera
         # self.cap = cv.VideoCapture("https://www.syd1.fln-dev.net/fileservice/v4/download/621b0f33-a2b6-49f0-9be8-3f0fc01f733a?signature=WlmJPzyoYmAr3zryD07Rxng1NOlXZYaVfpNlnNQYZ1w=&issued=1666282866&expires=1666369266&disposition=attachment&signature_version=2")
-        print(video_link)
+
+        fileservice_client = fileservice_py.client.FileserviceClient(
+            'fileservice_socket_encrypted.service.consul', 10501
+        )
+        fileservice_auth ='07L%2BRihHs%2FwQUGH0shS%2B8a3HegMrTDYqacoYmOE0QwA%3D';
+
         self.cap = cv.VideoCapture(video_link)
         # self.cap = cv.VideoCapture("./assets/alphabet.mp4")
         if self.cap.isOpened():
@@ -721,4 +727,18 @@ def process_video_route():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0')
+    fileservice_client = fileservice_py.client.FileserviceClient(
+        'fileservice_socket_encrypted.service.consul', 10500
+    )
+    fileservice_auth ='07L%2BRihHs%2FwQUGH0shS%2B8a3HegMrTDYqacoYmOE0QwA%3D'
+
+    fileservice_client.ping()
+
+    # source_video_bytes = fileservice_client.download(
+    #     'de1fa156-5673-4a84-b962-6035ab1d3765',
+    #     fileservice_auth
+    # )
+
+    # print(source_video_bytes)
+
+    # app.run(host='0.0.0.0')
