@@ -1,0 +1,26 @@
+Before all else, checkout the `feature/cpu-only` branch
+
+1. Installing Python
+Make sure that you have the latest Python 3 version installed and enabled (Python 3.10). Make sure that this is the python version in use when executing the rest of the instructions.
+
+-- Installing Python 3.10
+> sudo apt install python3.10 python3.10-venv
+
+-- Creating and activating the virtualenv
+Create virtual environment for the project. This can be created anywhere, though for the sake of being neat you can also do it inside the project folder itself
+> python -m venv venv # assuming that `python` here refers to python3.10
+
+Activate the virtualenv for your current shell session
+> source venv/bin/activate
+
+2. Installing project dependencies
+> pip install -r requirements.txt
+
+3. Downloading the model
+Download the model from https://onedrive.live.com/redir?resid=C28F3ED40E5299FC!27128&authkey=!AEAW6uCPOQpduVs&e=KY07YI. Select the third file `MiCT-RANet34.pth`
+
+Move this file into the repo's data/ dir.
+
+4. Starting the server
+It is recommended to run the server using uwsgi:
+> uwsgi --socket 0.0.0.0:5000 --protocol=http -w webcam:app --enable-threads
