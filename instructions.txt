@@ -15,6 +15,7 @@ Activate the virtualenv for your current shell session
 
 2. Installing project dependencies
 > pip install -r requirements.txt
+> python -m pip install --extra-index-url https://nexus.tools.flnltd.com/repository/pypi/simple -r requirements-nexus.txt
 
 3. Downloading the model
 Download the model from https://onedrive.live.com/redir?resid=C28F3ED40E5299FC!27128&authkey=!AEAW6uCPOQpduVs&e=KY07YI. Select the third file `MiCT-RANet34.pth`
