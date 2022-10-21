@@ -716,7 +716,7 @@ def process_video_route():
         print(f'File ID: {file_id}')
 
         fileservice_client = fileservice_py.client.FileserviceClient(
-            'fileservice_socket_encrypted.service.consul', 10501
+            'fileservice_socket_encrypted.service.consul', 10500
         )
 
         video_as_bytes = fileservice_client.download(
